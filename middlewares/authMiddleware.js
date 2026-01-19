@@ -1,5 +1,5 @@
 import JWT from "jsonwebtoken"
-import userModel from "../models/userModel"
+import userModel from "../models/userModel.js"
 
 // Protected Routes
 export const requireSignIn = async (req, res, next) => {
