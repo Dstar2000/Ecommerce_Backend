@@ -1,5 +1,6 @@
-import { hashPassword } from "../helpers/authHelper.js"
+import { comparePassword, hashPassword } from "../helpers/authHelper.js"
 import userModel from "../models/userModel.js"
+import JWT from "jsonwebtoken"
 
 export const registerController = async (req, res) => {
     try {
@@ -69,6 +70,59 @@ export const registerController = async (req, res) => {
       success: false,
       message: "Error in Register Controller",
       error: error.message
+        })
+    }
+}
+
+export const loginController = async (req, res) => {
+    try {
+        const {email, password} = req.body
+
+        if(!email || !password) {
+            return res.status(400).send({
+                success: false,
+                message: "Invalid email or password"
+            })
+        }
+
+        const user = await userModel.findOne({email})
+
+        if(!user) {
+            return res.status(400).send({
+                success: false,
+                message: "User not found"
+            })
+        }
+
+        const isMatch = await comparePassword(password, user.password)
+
+        if(!isMatch) {
+            return res.status(400).send({
+                success: false,
+                message: "Invalid password"
+            })
+        }
+
+        const token = JWT.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: "7d"})
+
+        return res.status(200).send({
+            success: true,
+            message: "Login successful",
+            user:{
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+                role: user.role
+            },
+            token
+        })
+    } catch(error) {
+        console.log(error)
+        res.status(500).send({
+            success: false,
+            message: "Error in Login Controller",
+            error
         })
     }
 }
