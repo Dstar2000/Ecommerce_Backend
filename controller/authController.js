@@ -75,54 +75,58 @@ export const registerController = async (req, res) => {
 }
 
 export const loginController = async (req, res) => {
-    try {
-        const {email, password} = req.body
+  try {
+    const { email, password } = req.body
 
-        if(!email || !password) {
-            return res.status(400).send({
-                success: false,
-                message: "Invalid email or password"
-            })
-        }
-
-        const user = await userModel.findOne({email})
-
-        if(!user) {
-            return res.status(400).send({
-                success: false,
-                message: "User not found"
-            })
-        }
-
-        const isMatch = await comparePassword(password, user.password)
-
-        if(!isMatch) {
-            return res.status(400).send({
-                success: false,
-                message: "Invalid password"
-            })
-        }
-
-        const token = JWT.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: "7d"})
-
-        return res.status(200).send({
-            success: true,
-            message: "Login successful",
-            user:{
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                address: user.address,
-                role: user.role
-            },
-            token
-        })
-    } catch(error) {
-        console.log(error)
-        res.status(500).send({
-            success: false,
-            message: "Error in Login Controller",
-            error
-        })
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required"
+      })
     }
+
+    const user = await userModel.findOne({ email })
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      })
+    }
+
+    const isMatch = await comparePassword(password, user.password)
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password"
+      })
+    }
+
+    const token = JWT.sign(
+      { _id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    )
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        role: user.role
+      },
+      token
+    })
+
+  } catch (error) {
+    console.error("LOGIN CONTROLLER ERROR 👉", error)
+
+    return res.status(500).json({
+      success: false,
+      message: "Error in Login Controller",
+      error: error.message
+    })
+  }
 }
