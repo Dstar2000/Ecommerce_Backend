@@ -37,7 +37,7 @@ export const registerController = async (req, res) => {
 
         const existingUser = await userModel.findOne({email})
 
-        if(user) {
+        if (existingUser) {
             return res.status(400).send({
                 success: false,
                 message: "User already exists"
@@ -63,10 +63,12 @@ export const registerController = async (req, res) => {
 
      
     } catch(error) {
-        console.log(error)
-        res.status(500).send({
-            message: "Error in Register Controller",
-            error
+       console.error("REGISTER CONTROLLER ERROR 👉", error)
+
+    return res.status(500).json({
+      success: false,
+      message: "Error in Register Controller",
+      error: error.message
         })
     }
 }
