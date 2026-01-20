@@ -4,7 +4,8 @@ import {
   getAllProductsController,
   getProductController,
   updateProductController,
-  deleteProductController
+  deleteProductController,
+  getShopProductsController
 } from "../controller/productController.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
 
@@ -15,6 +16,7 @@ router.get("/", getAllProductsController);
 router.get("/:id", getProductController);
 
 // Shop owner only - Note: No need to add multer middleware here as it's in the controller
+router.get("/shop-products", requireSignIn, getShopProductsController);
 router.post("/", requireSignIn, createProductController);
 router.put("/:id", requireSignIn, updateProductController);
 router.delete("/:id", requireSignIn, deleteProductController);

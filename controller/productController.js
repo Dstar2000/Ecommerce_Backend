@@ -99,3 +99,31 @@ export const getProductController = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching product", error: error.message });
   }
 };
+
+// GET SHOP PRODUCTS (Shop Owner Only)
+export const getShopProductsController = async (req, res) => {
+  try {
+    if (req.user.role !== 1) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const products = await productModel
+      .find({ shopOwner: req.user._id })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    console.log("GET SHOP PRODUCTS ERROR 👉", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching shop products",
+      error: error.message,
+    });
+  }
+};
+
