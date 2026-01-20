@@ -31,8 +31,13 @@ const userSchema = new mongoose.Schema(
     shopName: {
       type: String,
       required: function () {
-        return this.role === 1; // Only required for shop owners
+        return this.role === 1; 
       },
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive"], 
+      default: "active", 
     },
   },
   { timestamps: true }
